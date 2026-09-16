@@ -305,7 +305,7 @@
 
 <header class="site">
   <div class="wrap">
-    <div class="brand">茶 屋 選 物<small>TEA BAG ORDERS</small></div>
+    <div class="brand">呈 茶 商 行<small>Thîn Tê</small></div>
     <button class="cart-btn" id="openCartBtn" type="button">
       購物車<span class="cart-count" id="cartCount">0</span>
     </button>
@@ -339,8 +339,8 @@
 
 <footer>
   <div class="wrap">
-    <span>© 2026 茶屋選物（範例站）</span>
-    <span>訂購問題請透過訂單確認頁面的聯絡方式與我們聯繫</span>
+    <span>© 2026 呈茶商行</span>
+    <span>訂購問題請透過官方LINE與我們聯繫 @028wdxfa</span>
   </div>
 </footer>
 
@@ -392,9 +392,9 @@
         <div class="field">
           <label>取貨方式</label>
           <div class="radio-group" id="deliveryGroup">
-            <label class="radio-opt" data-value="超商店到店">
-              <input type="radio" name="delivery" value="超商店到店" required>
-              <span>超商店到店（7-11 / 全家，運費依超商公告計）</span>
+            <label class="radio-opt" data-value="7-11超商店到店">
+              <input type="radio" name="delivery" value="7-11超商店到店" required>
+              <span>7-11超商店到店</span>
             </label>
             <label class="radio-opt" data-value="面交自取">
               <input type="radio" name="delivery" value="面交自取">
@@ -416,7 +416,7 @@
         <div class="field">
           <label>付款方式</label>
           <div class="bank-info">
-            本站僅提供 <b>匯款轉帳</b>。送出訂單後，頁面與簡訊將顯示匯款帳號，請於 3 日內完成匯款，我們確認入帳後即安排出貨。
+            本站僅提供 <b>匯款轉帳</b>。送出訂單後，請到官方LINE：@028wdxfa索取匯款帳號，請於 3 日內完成匯款，我們確認入帳後即安排出貨。
           </div>
         </div>
 
@@ -434,11 +434,7 @@
         <div class="icon">✓</div>
         <h2>訂單已送出</h2>
         <div class="order-id" id="orderIdDisplay"></div>
-        <p>我們已收到您的訂單，請盡快完成匯款，款項確認後將安排出貨並以簡訊通知。</p>
-        <div class="bank-info" style="text-align:left;margin-top:20px;">
-          <b>匯款帳號</b>　範例銀行（000） 000-0000000000-0<br>
-          <b>戶名</b>　範例茶屋<br>
-          匯款後請保留末五碼以便對帳。
+        <p>我們已收到您的訂單，請到官方LINE：@028wdxfa索取匯款帳號，請於 3 日內完成匯款，我們確認入帳後即安排出貨。</p>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-primary" id="doneBtn" style="flex:1;">回到商品頁</button>
@@ -474,7 +470,7 @@ const PRODUCTS = [
 ];
 
 /* ---------- 請替換成你部署好的 GAS Web App URL ---------- */
-const GAS_ENDPOINT = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxzcPSFCxqD1Z4CU8weFRinleYOqN3JIshfnZgYIT9135gubJqH9QyyY2QOnKwEin5sNg/exec';
 
 const state = { cart: JSON.parse(localStorage.getItem('teabag_cart') || '{}') };
 
@@ -594,8 +590,8 @@ const storeField = document.getElementById('storeField');
 deliveryGroup.addEventListener('change', e => {
   document.querySelectorAll('.radio-opt').forEach(o => o.classList.remove('selected'));
   e.target.closest('.radio-opt').classList.add('selected');
-  storeField.style.display = e.target.value === '超商店到店' ? 'block' : 'none';
-  document.getElementById('storeInfo').required = e.target.value === '超商店到店';
+  storeField.style.display = e.target.value === '7-11超商店到店' ? 'block' : 'none';
+  document.getElementById('storeInfo').required = e.target.value === '7-11超商店到店';
 });
 storeField.style.display = 'none';
 

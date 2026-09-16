@@ -95,6 +95,7 @@
     color:#fff;
     font-weight:600;
     letter-spacing:.04em;
+    text-shadow:0 1px 3px rgba(0,0,0,.45);
   }
 
   /* products */
@@ -304,7 +305,7 @@
 
 <header class="site">
   <div class="wrap">
-    <div class="brand">呈 茶 商 行<small>Thîn Tê</small></div>
+    <div class="brand">茶 屋 選 物<small>TEA BAG ORDERS</small></div>
     <button class="cart-btn" id="openCartBtn" type="button">
       購物車<span class="cart-count" id="cartCount">0</span>
     </button>
@@ -315,20 +316,22 @@
   <div class="wrap">
     <div>
       <h1>每天，留一段時間<br>給一杯好泡的茶。</h1>
-      <p class="lede">精選茶包，一沖即飲。</p>
+      <p class="lede">精選純茶、獨家茶飲與期間限定茶品，一沖即飲，也提供中秋禮盒與綜合茶包組。</p>
     </div>
     <div class="swatch-grid" aria-hidden="true">
-      <div class="swatch" style="background:#5c3a21;">紅茶</div>
-      <div class="swatch" style="background:#4b5d3c;">綠茶</div>
-      <div class="swatch" style="background:#b87f3e;">烏龍</div>
-      <div class="swatch" style="background:#c9a24a;">花草</div>
+      <!-- 每個 .swatch 可加上 background-image，例如:
+           style="background:#5c3a21 url('images/category-pure.jpg') center/cover no-repeat;" -->
+      <div class="swatch" style="background:#5c3a21;">純茶</div>
+      <div class="swatch" style="background:#b87f3e;">獨家茶飲</div>
+      <div class="swatch" style="background:#c9a24a;">期間限定</div>
+      <div class="swatch" style="background:#4b5d3c;">禮盒系列</div>
     </div>
   </div>
 </section>
 
 <section class="products">
   <div class="wrap">
-    <div class="section-label">全部商品 · 範例</div>
+    <div class="section-label">全部商品</div>
     <h2>選擇今天想喝的茶</h2>
     <div class="grid" id="productGrid"></div>
   </div>
@@ -336,7 +339,7 @@
 
 <footer>
   <div class="wrap">
-    <span>© 2026 呈茶商行</span>
+    <span>© 2026 茶屋選物（範例站）</span>
     <span>訂購問題請透過訂單確認頁面的聯絡方式與我們聯繫</span>
   </div>
 </footer>
@@ -447,12 +450,27 @@
 </div>
 
 <script>
-/* ---------- 範例商品資料：正式上線前請替換 ---------- */
+/* ---------- 商品資料 ---------- */
+/* img：填入照片網址或相對路徑（例如 images/tea-01.jpg）。留空則維持原本色塊。 */
 const PRODUCTS = [
-  { id:'tb-black-honey', name:'蜜香紅茶', type:'紅茶', note:'台灣蜜香紅茶，甜潤回甘，冷熱皆宜。', price:280, unit:'10入/盒', color:'#5c3a21' },
-  { id:'tb-green-jasmine', name:'茉莉綠茶', type:'綠茶', note:'茉莉花香揉入清香綠茶，氣味清爽。', price:260, unit:'10入/盒', color:'#4b5d3c' },
-  { id:'tb-oolong-osmanthus', name:'桂花烏龍', type:'烏龍茶', note:'烏龍茶香搭配桂花香氣，尾韻回甘。', price:300, unit:'10入/盒', color:'#b87f3e' },
-  { id:'tb-herbal-chamomile', name:'洋甘菊花草茶', type:'花草茶', note:'無咖啡因，適合睡前放鬆飲用。', price:260, unit:'10入/盒', color:'#c9a24a' },
+  { id:'tea-01', name:'四季春', type:'純茶', note:'產地台灣南投', price:60, unit:'15入', color:'#5c3a21', img:'' },
+  { id:'tea-02', name:'文山包種茶', type:'純茶', note:'產地台灣南投', price:70, unit:'10入', color:'#5c3a21', img:'' },
+  { id:'tea-03', name:'焙火烏龍茶', type:'純茶', note:'產地台灣南投', price:70, unit:'10入', color:'#5c3a21', img:'' },
+  { id:'tea-04', name:'紅烏龍', type:'純茶', note:'產地台灣南投', price:150, unit:'10入', color:'#5c3a21', img:'' },
+  { id:'tea-05', name:'古早味紅茶', type:'純茶', note:'產地台灣南投', price:60, unit:'10入', color:'#5c3a21', img:'' },
+  { id:'tea-06', name:'蜜香紅茶', type:'純茶', note:'產地台灣南投', price:70, unit:'10入', color:'#5c3a21', img:'' },
+  { id:'tea-07', name:'蘋果四季青', type:'獨家茶飲', note:'產地台灣南投、德國', price:80, unit:'10入', color:'#b87f3e', img:'' },
+  { id:'tea-08', name:'莓果四季青', type:'獨家茶飲', note:'產地台灣南投、德國', price:80, unit:'10入', color:'#b87f3e', img:'' },
+  { id:'tea-09', name:'黑醋栗果茶', type:'獨家茶飲', note:'產地德國', price:90, unit:'10入', color:'#b87f3e', img:'' },
+  { id:'tea-10', name:'玫瑰蜜桃茶', type:'獨家茶飲', note:'產地德國', price:90, unit:'10入', color:'#b87f3e', img:'' },
+  { id:'tea-11', name:'香甜蘋果茶', type:'獨家茶飲', note:'產地德國', price:90, unit:'10入', color:'#b87f3e', img:'' },
+  { id:'tea-12', name:'綜合莓果茶', type:'獨家茶飲', note:'產地德國', price:90, unit:'10入', color:'#b87f3e', img:'' },
+  { id:'tea-13', name:'蘋果養顏茶', type:'期間限定', note:'產地中國、德國、台灣', price:125, unit:'8入', color:'#c9a24a', img:'' },
+  { id:'tea-14', name:'玫瑰白桃果乾茶', type:'期間限定', note:'產地伊朗、德國', price:150, unit:'8入', color:'#c9a24a', img:'' },
+  { id:'tea-15', name:'紅茶餅乾', type:'期間限定', note:'產地台灣', price:10, unit:'1入', color:'#c9a24a', img:'' },
+  { id:'tea-16', name:'伯爵沙不列', type:'期間限定', note:'產地台灣', price:7, unit:'1入', color:'#c9a24a', img:'' },
+  { id:'tea-17', name:'中秋禮盒', type:'禮盒系列', note:'紅茶餅乾*5片+伯爵沙不列*5片+蘋果養顏茶*5包+綜合莓果茶*5包', price:320, unit:'1盒', color:'#4b5d3c', img:'' },
+  { id:'tea-18', name:'綜合茶包組', type:'禮盒系列', note:'所有茶品各1包，共14包', price:180, unit:'1盒', color:'#4b5d3c', img:'' },
 ];
 
 /* ---------- 請替換成你部署好的 GAS Web App URL ---------- */
@@ -467,7 +485,7 @@ function renderProducts(){
   const grid = document.getElementById('productGrid');
   grid.innerHTML = PRODUCTS.map(p => `
     <div class="product-card">
-      <div class="swatch-top" style="background:${p.color};">
+      <div class="swatch-top" style="background:${p.color}${p.img ? ` url('${p.img}') center/cover no-repeat` : ''};">
         <span class="tag">${p.type}</span>
       </div>
       <div class="product-body">
@@ -533,7 +551,7 @@ function renderCart(){
     ? '<div class="empty-cart">購物車是空的，先去挑幾包茶吧。</div>'
     : items.map(i => `
       <div class="cart-item">
-        <div class="swatch-mini" style="background:${i.color};"></div>
+        <div class="swatch-mini" style="background:${i.color}${i.img ? ` url('${i.img}') center/cover no-repeat` : ''};"></div>
         <div class="ci-body">
           <h4>${i.name}</h4>
           <div class="ci-meta">

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>訂單管理後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe7d4; --card:#f8f3e6; --ink:#262620; --ink-soft:#5c5849;
+    --brew-700:#6b3f1d; --brew-500:#8a5227; --leaf-600:#4b5d3c;
+    --line:#d9cca9; --line-soft:#e6dcc2; --danger:#a4442f;
+    --amber:#b87f3e;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Noto Sans TC',sans-serif;}
+  h1,h2{font-family:'Noto Serif TC',serif;margin:0;font-weight:700;}
+  .wrap{max-width:1200px;margin:0 auto;padding:24px;}
+
+  /* login gate */
+  #loginGate{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+  }
+  .login-box{
+    background:var(--card);border:1px solid var(--line-soft);border-radius:6px;
+    padding:36px 32px;width:100%;max-width:340px;text-align:center;
+  }
+  .login-box h1{font-size:20px;color:var(--brew-700);margin-bottom:4px;}
+  .login-box p{font-size:13px;color:var(--ink-soft);margin:6px 0 20px;}
+  .login-box input{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:4px;
+    font-size:14px;margin-bottom:12px;
+  }
+  .login-box button{
+    width:100%;padding:11px;background:var(--brew-700);color:#fff;border:none;
+    border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;
+  }
+  .login-box button:hover{background:var(--brew-500);}
+  .login-error{color:var(--danger);font-size:12px;margin-bottom:10px;display:none;}
+  .login-error.show{display:block;}
+
+  #adminApp{display:none;}
+
+  header{border-bottom:1px solid var(--line);padding:18px 0;}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:0;padding-bottom:0;}
+  .brand{font-size:19px;color:var(--brew-700);}
+  .logout-btn{background:none;border:1px solid var(--line);border-radius:4px;padding:7px 14px;font-size:13px;cursor:pointer;color:var(--ink-soft);}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0;}
+  .stat-card{background:var(--card);border:1px solid var(--line-soft);border-radius:6px;padding:16px 18px;}
+  .stat-card .label{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+  .stat-card .value{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:var(--brew-700);}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+  .toolbar input[type=text]{
+    flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);border-radius:4px;font-size:13px;
+  }
+  .toolbar select{padding:9px 12px;border:1px solid var(--line);border-radius:4px;font-size:13px;background:#fff;}
+  .toolbar button{
+    padding:9px 16px;border:1px solid var(--line);background:#fff;border-radius:4px;
+    font-size:13px;cursor:pointer;color:var(--ink-soft);
+  }
+  .toolbar button:hover{border-color:var(--brew-500);color:var(--brew-700);}
+
+  .table-wrap{background:var(--card);border:1px solid var(--line-soft);border-radius:6px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;padding:12px 14px;background:var(--line-soft);color:var(--ink-soft);
+    font-weight:600;font-size:12px;white-space:nowrap;
+  }
+  tbody td{padding:12px 14px;border-top:1px solid var(--line-soft);vertical-align:top;}
+  tbody tr:hover{background:rgba(255,255,255,.5);}
+  .oid{font-weight:700;color:var(--brew-700);}
+  .items-cell{max-width:220px;font-size:12px;color:var(--ink-soft);}
+  .status-select{
+    padding:5px 8px;border-radius:999px;border:1px solid var(--line);font-size:12px;
+    font-weight:600;background:#fff;cursor:pointer;
+  }
+  .status-待付款{color:var(--danger);}
+  .status-已付款{color:var(--amber);}
+  .status-備貨中{color:var(--brew-700);}
+  .status-已出貨{color:var(--leaf-600);}
+  .status-已完成{color:var(--leaf-600);}
+  .row-detail-btn{background:none;border:none;color:var(--brew-700);text-decoration:underline;font-size:12px;cursor:pointer;padding:0;}
+  .empty-row td{text-align:center;padding:48px;color:var(--ink-soft);}
+  .loading-row td{text-align:center;padding:48px;color:var(--ink-soft);}
+
+  /* detail modal */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(38,38,32,.45);display:none;
+    align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;z-index:60;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--paper);border-radius:6px;width:100%;max-width:480px;padding:28px;}
+  .modal h2{font-size:18px;color:var(--brew-700);margin-bottom:16px;}
+  .detail-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line-soft);}
+  .detail-row .k{color:var(--ink-soft);}
+  .detail-items{margin:14px 0;font-size:13px;}
+  .detail-items div{display:flex;justify-content:space-between;padding:4px 0;}
+  .modal-close{
+    margin-top:18px;width:100%;padding:11px;background:var(--brew-700);color:#fff;border:none;
+    border-radius:4px;font-weight:700;cursor:pointer;
+  }
+
+  @media (max-width:800px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .table-wrap{overflow-x:auto;}
+    table{min-width:760px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="loginGate">
+  <div class="login-box">
+    <h1>訂單管理後台</h1>
+    <p>請輸入管理密碼</p>
+    <p class="login-error" id="loginError">密碼錯誤，請再試一次。</p>
+    <input type="password" id="passwordInput" placeholder="密碼">
+    <button id="loginBtn">登入</button>
+  </div>
+</div>
+
+<div id="adminApp">
+  <header>
+    <div class="wrap">
+      <div class="brand">茶屋選物 · 訂單管理</div>
+      <button class="logout-btn" id="logoutBtn">登出</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat-card"><div class="label">總訂單數</div><div class="value" id="statTotal">–</div></div>
+      <div class="stat-card"><div class="label">待付款</div><div class="value" id="statPending">–</div></div>
+      <div class="stat-card"><div class="label">待出貨</div><div class="value" id="statShipping">–</div></div>
+      <div class="stat-card"><div class="label">累計營收</div><div class="value" id="statRevenue">–</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="搜尋姓名、電話或訂單編號">
+      <select id="statusFilter">
+        <option value="">全部狀態</option>
+        <option value="待付款">待付款</option>
+        <option value="已付款">已付款</option>
+        <option value="備貨中">備貨中</option>
+        <option value="已出貨">已出貨</option>
+        <option value="已完成">已完成</option>
+      </select>
+      <button id="refreshBtn">重新整理</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>訂單編號</th>
+            <th>時間</th>
+            <th>客戶</th>
+            <th>取貨方式</th>
+            <th>商品</th>
+            <th>金額</th>
+            <th>狀態</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr class="loading-row"><td colspan="8">載入中…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="detailOverlay">
+  <div class="modal">
+    <h2>訂單詳情</h2>
+    <div id="detailBody"></div>
+    <button class="modal-close" id="detailCloseBtn">關閉</button>
+  </div>
+</div>
+
+<script>
+/* 請替換成你部署好的 GAS Web App URL（與 index.html 使用同一個） */
+const GAS_ENDPOINT = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+
+let orders = [];
+let adminPassword = '';
+
+function fmt(n){ return 'NT$' + Number(n||0).toLocaleString('en-US'); }
+
+/* ---------- login ---------- */
+document.getElementById('loginBtn').addEventListener('click', attemptLogin);
+document.getElementById('passwordInput').addEventListener('keydown', e => { if(e.key === 'Enter') attemptLogin(); });
+
+async function attemptLogin(){
+  const pw = document.getElementById('passwordInput').value;
+  if(!pw) return;
+  document.getElementById('loginBtn').textContent = '登入中…';
+  try{
+    const res = await fetch(`${GAS_ENDPOINT}?action=list&password=${encodeURIComponent(pw)}`);
+    const data = await res.json();
+    if(data.error){
+      document.getElementById('loginError').classList.add('show');
+      document.getElementById('loginBtn').textContent = '登入';
+      return;
+    }
+    adminPassword = pw;
+    sessionStorage.setItem('teabag_admin_pw', pw);
+    orders = data.orders || [];
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'block';
+    renderAll();
+  }catch(err){
+    document.getElementById('loginError').textContent = '連線失敗，請確認 GAS_ENDPOINT 設定是否正確。';
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('loginBtn').textContent = '登入';
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('teabag_admin_pw');
+  location.reload();
+});
+
+/* auto-login if password remembered for this session */
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = sessionStorage.getItem('teabag_admin_pw');
+  if(saved){
+    document.getElementById('passwordInput').value = saved;
+    attemptLogin();
+  }
+});
+
+/* ---------- fetch / refresh ---------- */
+async function fetchOrders(){
+  const tbody = document.getElementById('ordersBody');
+  tbody.innerHTML = '<tr class="loading-row"><td colspan="8">載入中…</td></tr>';
+  try{
+    const res = await fetch(`${GAS_ENDPOINT}?action=list&password=${encodeURIComponent(adminPassword)}`);
+    const data = await res.json();
+    orders = data.orders || [];
+  }catch(err){
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">載入失敗，請檢查網路連線或 GAS 設定。</td></tr>';
+    return;
+  }
+  renderAll();
+}
+document.getElementById('refreshBtn').addEventListener('click', fetchOrders);
+
+/* ---------- render ---------- */
+function renderAll(){
+  renderStats();
+  renderTable();
+}
+
+function renderStats(){
+  const total = orders.length;
+  const pending = orders.filter(o => o.status === '待付款').length;
+  const shipping = orders.filter(o => o.status === '已付款' || o.status === '備貨中').length;
+  const revenue = orders
+    .filter(o => o.status !== '待付款')
+    .reduce((s,o) => s + Number(o.total || 0), 0);
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('statShipping').textContent = shipping;
+  document.getElementById('statRevenue').textContent = fmt(revenue);
+}
+
+function filteredOrders(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  return orders.filter(o => {
+    const matchesQ = !q || [o.orderId, o.customerName, o.phone].join(' ').toLowerCase().includes(q);
+    const matchesStatus = !status || o.status === status;
+    return matchesQ && matchesStatus;
+  });
+}
+
+function renderTable(){
+  const tbody = document.getElementById('ordersBody');
+  const list = filteredOrders().slice().sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  if(list.length === 0){
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">目前沒有符合條件的訂單。</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(o => {
+    const itemsSummary = (o.items || []).map(i => `${i.name}×${i.qty}`).join('、');
+    const date = o.timestamp ? new Date(o.timestamp).toLocaleString('zh-TW', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+    return `
+      <tr>
+        <td class="oid">${o.orderId}</td>
+        <td>${date}</td>
+        <td>${o.customerName}<br><span style="color:var(--ink-soft);font-size:12px;">${o.phone}</span></td>
+        <td>${o.delivery}${o.storeInfo ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+o.storeInfo+'</span>' : ''}</td>
+        <td class="items-cell">${itemsSummary}</td>
+        <td>${fmt(o.total)}</td>
+        <td>
+          <select class="status-select status-${o.status}" data-id="${o.orderId}">
+            ${['待付款','已付款','備貨中','已出貨','已完成'].map(s => `<option value="${s}" ${s===o.status?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </td>
+        <td><button class="row-detail-btn" data-id="${o.orderId}">詳情</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', renderTable);
+document.getElementById('statusFilter').addEventListener('change', renderTable);
+
+/* status update */
+document.getElementById('ordersBody').addEventListener('change', async e => {
+  const select = e.target.closest('.status-select');
+  if(!select) return;
+  const orderId = select.dataset.id;
+  const newStatus = select.value;
+  select.disabled = true;
+  try{
+    await fetch(GAS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action:'updateStatus', password: adminPassword, orderId, status: newStatus }),
+    });
+    const o = orders.find(x => x.orderId === orderId);
+    if(o) o.status = newStatus;
+    select.className = 'status-select status-' + newStatus;
+    renderStats();
+  }catch(err){
+    alert('狀態更新失敗，請重新整理後再試一次。');
+  }finally{
+    select.disabled = false;
+  }
+});
+
+/* detail modal */
+const detailOverlay = document.getElementById('detailOverlay');
+document.getElementById('ordersBody').addEventListener('click', e => {
+  const btn = e.target.closest('.row-detail-btn');
+  if(!btn) return;
+  const o = orders.find(x => x.orderId === btn.dataset.id);
+  if(!o) return;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-row"><span class="k">訂單編號</span><span>${o.orderId}</span></div>
+    <div class="detail-row"><span class="k">訂購時間</span><span>${new Date(o.timestamp).toLocaleString('zh-TW')}</span></div>
+    <div class="detail-row"><span class="k">收件人</span><span>${o.customerName}</span></div>
+    <div class="detail-row"><span class="k">電話</span><span>${o.phone}</span></div>
+    <div class="detail-row"><span class="k">Email</span><span>${o.email || '—'}</span></div>
+    <div class="detail-row"><span class="k">取貨方式</span><span>${o.delivery}</span></div>
+    <div class="detail-row"><span class="k">取貨門市</span><span>${o.storeInfo || '—'}</span></div>
+    <div class="detail-row"><span class="k">付款方式</span><span>${o.paymentMethod}</span></div>
+    <div class="detail-row"><span class="k">備註</span><span>${o.note || '—'}</span></div>
+    <div class="detail-items">
+      ${(o.items||[]).map(i => `<div><span>${i.name} × ${i.qty}</span><span>${fmt(i.subtotal)}</span></div>`).join('')}
+      <div style="font-weight:700;border-top:1px solid var(--line-soft);margin-top:6px;padding-top:6px;">
+        <span>合計</span><span>${fmt(o.total)}</span>
+      </div>
+    </div>
+  `;
+  detailOverlay.classList.add('open');
+});
+document.getElementById('detailCloseBtn').addEventListener('click', () => detailOverlay.classList.remove('open'));
+detailOverlay.addEventListener('click', e => { if(e.target === detailOverlay) detailOverlay.classList.remove('open'); });
+</script>
+</body>
+</html>

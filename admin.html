@@ -48,7 +48,17 @@
   .brand{font-size:19px;color:var(--brew-700);}
   .logout-btn{background:none;border:1px solid var(--line);border-radius:4px;padding:7px 14px;font-size:13px;cursor:pointer;color:var(--ink-soft);}
 
+  /* tabs */
+  .tab-nav{display:flex;gap:8px;margin:22px 0 4px;}
+  .tab-btn{
+    background:none;border:1px solid var(--line);border-radius:999px;
+    padding:8px 18px;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+  }
+  .tab-btn:hover{border-color:var(--brew-500);color:var(--brew-700);}
+  .tab-btn.active{background:var(--brew-700);color:#fff;border-color:var(--brew-700);}
+
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0;}
+  .stats.stats-3{grid-template-columns:repeat(3,1fr);}
   .stat-card{background:var(--card);border:1px solid var(--line-soft);border-radius:6px;padding:16px 18px;}
   .stat-card .label{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
   .stat-card .value{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:var(--brew-700);}
@@ -72,6 +82,7 @@
   }
   tbody td{padding:12px 14px;border-top:1px solid var(--line-soft);vertical-align:top;}
   tbody tr:hover{background:rgba(255,255,255,.5);}
+  tfoot td{padding:12px 14px;border-top:2px solid var(--line-soft);font-weight:700;background:rgba(255,255,255,.4);}
   .oid{font-weight:700;color:var(--brew-700);}
   .items-cell{max-width:220px;font-size:12px;color:var(--ink-soft);}
   .status-select{
@@ -86,6 +97,14 @@
   .row-detail-btn{background:none;border:none;color:var(--brew-700);text-decoration:underline;font-size:12px;cursor:pointer;padding:0;}
   .empty-row td{text-align:center;padding:48px;color:var(--ink-soft);}
   .loading-row td{text-align:center;padding:48px;color:var(--ink-soft);}
+
+  /* inventory tab */
+  .inv-input{width:80px;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px;text-align:right;font-family:inherit;}
+  .inv-input:focus{outline:2px solid var(--amber);outline-offset:1px;}
+  .need-cell{font-weight:700;}
+  .need-cell.ok{color:var(--leaf-600);}
+  .need-cell.short{color:var(--danger);}
+  .inv-note{font-size:12px;color:var(--ink-soft);margin-top:10px;line-height:1.6;}
 
   /* detail modal */
   .modal-overlay{
@@ -126,51 +145,97 @@
 <div id="adminApp">
   <header>
     <div class="wrap">
-      <div class="brand">呈茶商行 · 訂單管理</div>
+      <div class="brand">呈茶商行 · 後台管理</div>
       <button class="logout-btn" id="logoutBtn">登出</button>
     </div>
   </header>
 
   <div class="wrap">
-    <div class="stats">
-      <div class="stat-card"><div class="label">總訂單數</div><div class="value" id="statTotal">–</div></div>
-      <div class="stat-card"><div class="label">待付款</div><div class="value" id="statPending">–</div></div>
-      <div class="stat-card"><div class="label">待出貨</div><div class="value" id="statShipping">–</div></div>
-      <div class="stat-card"><div class="label">累計營收</div><div class="value" id="statRevenue">–</div></div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tabOrdersBtn" type="button">訂單管理</button>
+      <button class="tab-btn" id="tabInventoryBtn" type="button">庫存管理</button>
     </div>
 
-    <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="搜尋姓名、電話或訂單編號">
-      <select id="statusFilter">
-        <option value="">全部狀態</option>
-        <option value="待付款">待付款</option>
-        <option value="已付款">已付款</option>
-        <option value="備貨中">備貨中</option>
-        <option value="已出貨">已出貨</option>
-        <option value="已完成">已完成</option>
-      </select>
-      <button id="refreshBtn">重新整理</button>
-    </div>
+    <section id="ordersView">
+      <div class="stats">
+        <div class="stat-card"><div class="label">總訂單數</div><div class="value" id="statTotal">–</div></div>
+        <div class="stat-card"><div class="label">待付款</div><div class="value" id="statPending">–</div></div>
+        <div class="stat-card"><div class="label">待出貨</div><div class="value" id="statShipping">–</div></div>
+        <div class="stat-card"><div class="label">累計營收</div><div class="value" id="statRevenue">–</div></div>
+      </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>訂單編號</th>
-            <th>時間</th>
-            <th>客戶</th>
-            <th>取貨方式</th>
-            <th>商品</th>
-            <th>金額</th>
-            <th>狀態</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="ordersBody">
-          <tr class="loading-row"><td colspan="8">載入中…</td></tr>
-        </tbody>
-      </table>
-    </div>
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="搜尋姓名、電話或訂單編號">
+        <select id="statusFilter">
+          <option value="">全部狀態</option>
+          <option value="待付款">待付款</option>
+          <option value="已付款">已付款</option>
+          <option value="備貨中">備貨中</option>
+          <option value="已出貨">已出貨</option>
+          <option value="已完成">已完成</option>
+        </select>
+        <button id="refreshBtn">重新整理</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>訂單編號</th>
+              <th>時間</th>
+              <th>客戶</th>
+              <th>取貨方式</th>
+              <th>商品</th>
+              <th>金額</th>
+              <th>狀態</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody">
+            <tr class="loading-row"><td colspan="8">載入中…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="inventoryView" style="display:none;">
+      <div class="stats stats-3">
+        <div class="stat-card"><div class="label">內容物品項數</div><div class="value" id="invStatTotal">–</div></div>
+        <div class="stat-card"><div class="label">需叫貨品項</div><div class="value" id="invStatShort">–</div></div>
+        <div class="stat-card"><div class="label">預估叫貨總額</div><div class="value" id="invStatCost">–</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>內容物（庫存品項）</th>
+              <th>用於哪些商品</th>
+              <th>未出貨需求（顆）</th>
+              <th>目前庫存（顆）</th>
+              <th>需叫貨（顆）</th>
+              <th>進貨數量／袋</th>
+              <th>進貨單價／顆</th>
+              <th>建議叫貨袋數</th>
+              <th>預估成本</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryBody"></tbody>
+          <tfoot>
+            <tr><td colspan="8" style="text-align:right;">預估叫貨總額</td><td id="invTotalCost">NT$0</td></tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <p class="inv-note">
+        每個「品項」下單後，會依照商品結構表拆解成實際要扣的「內容物」用量（例如中秋禮盒＝5份紅茶餅乾＋5份伯爵沙不列＋5份蘋果養顏茶＋5份綜合莓果茶）。<br>
+        「未出貨需求」＝所有狀態為<b>待付款／已付款／備貨中</b>的訂單，依商品結構表換算成內容物顆數加總（已出貨、已完成不計入）。<br>
+        「目前庫存」為手動輸入，會自動存在此瀏覽器（localStorage）；「進貨數量」「進貨單價」已依你提供的商品結構表帶入預設值，如有異動可直接在表格修改。<br>
+        「需叫貨」＝ max(0, 未出貨需求 − 目前庫存)；「建議叫貨袋數」＝ 需叫貨顆數 ÷ 進貨數量，無條件進位；「預估成本」＝ 叫貨袋數 × 進貨數量 × 進貨單價。
+      </p>
+    </section>
+
   </div>
 </div>
 
@@ -250,10 +315,31 @@ async function fetchOrders(){
 }
 document.getElementById('refreshBtn').addEventListener('click', fetchOrders);
 
-/* ---------- render ---------- */
+/* ---------- tabs ---------- */
+const tabOrdersBtn = document.getElementById('tabOrdersBtn');
+const tabInventoryBtn = document.getElementById('tabInventoryBtn');
+const ordersView = document.getElementById('ordersView');
+const inventoryView = document.getElementById('inventoryView');
+
+tabOrdersBtn.addEventListener('click', () => {
+  tabOrdersBtn.classList.add('active');
+  tabInventoryBtn.classList.remove('active');
+  ordersView.style.display = 'block';
+  inventoryView.style.display = 'none';
+});
+tabInventoryBtn.addEventListener('click', () => {
+  tabInventoryBtn.classList.add('active');
+  tabOrdersBtn.classList.remove('active');
+  inventoryView.style.display = 'block';
+  ordersView.style.display = 'none';
+  renderInventory();
+});
+
+/* ---------- render (orders) ---------- */
 function renderAll(){
   renderStats();
   renderTable();
+  renderInventory();
 }
 
 function renderStats(){
@@ -331,6 +417,7 @@ document.getElementById('ordersBody').addEventListener('change', async e => {
     if(o) o.status = newStatus;
     select.className = 'status-select status-' + newStatus;
     renderStats();
+    renderInventory();
   }catch(err){
     alert('狀態更新失敗，請重新整理後再試一次。');
   }finally{
@@ -366,6 +453,193 @@ document.getElementById('ordersBody').addEventListener('click', e => {
 });
 document.getElementById('detailCloseBtn').addEventListener('click', () => detailOverlay.classList.remove('open'));
 detailOverlay.addEventListener('click', e => { if(e.target === detailOverlay) detailOverlay.classList.remove('open'); });
+
+/* ============================================================
+   庫存管理（依商品結構表 BOM 拆解）
+   ============================================================ */
+
+/* 內容物主檔：品名 → 進貨數量(一袋幾入)、進貨單價(每顆) — 帶入 Steven 提供的商品結構表 */
+const COMPONENT_META = [
+  { name:'四季春茶包', bagQty:60, unitPrice:2.75 },
+  { name:'文山包種茶包', bagQty:50, unitPrice:5 },
+  { name:'焙火烏龍茶包', bagQty:50, unitPrice:5 },
+  { name:'紅烏龍茶包', bagQty:12, unitPrice:9.92 },
+  { name:'古早味紅茶茶包', bagQty:20, unitPrice:4.45 },
+  { name:'蜜香紅茶茶包', bagQty:50, unitPrice:5 },
+  { name:'蘋果四季青茶包', bagQty:15, unitPrice:5.94 },
+  { name:'莓果四季青茶包', bagQty:15, unitPrice:5.94 },
+  { name:'黑醋栗果茶茶包', bagQty:50, unitPrice:6.4 },
+  { name:'玫瑰蜜桃茶茶包', bagQty:50, unitPrice:6.4 },
+  { name:'香甜蘋果茶茶包', bagQty:50, unitPrice:6.4 },
+  { name:'綜合莓果茶茶包', bagQty:50, unitPrice:6.4 },
+  { name:'蘋果養顏茶茶包', bagQty:10, unitPrice:11.9 },
+  { name:'玫瑰白桃果乾茶茶包', bagQty:30, unitPrice:10.64 },
+  { name:'紅茶餅乾單包', bagQty:100, unitPrice:6.9 },
+  { name:'伯爵沙不列單包', bagQty:100, unitPrice:4 },
+];
+
+/* 品項（客人下單時看到的名稱）→ 內容物拆解表：[內容物名稱, 每賣1個品項要扣的顆數] */
+const BOM = {
+  '四季春': [['四季春茶包', 1]],
+  '文山包種茶': [['文山包種茶包', 1]],
+  '焙火烏龍茶': [['焙火烏龍茶包', 1]],
+  '紅烏龍': [['紅烏龍茶包', 1]],
+  '古早味紅茶': [['古早味紅茶茶包', 1]],
+  '蜜香紅茶': [['蜜香紅茶茶包', 1]],
+  '蘋果四季青': [['蘋果四季青茶包', 1]],
+  '莓果四季青': [['莓果四季青茶包', 1]],
+  '黑醋栗果茶': [['黑醋栗果茶茶包', 1]],
+  '玫瑰蜜桃茶': [['玫瑰蜜桃茶茶包', 1]],
+  '香甜蘋果茶': [['香甜蘋果茶茶包', 1]],
+  '綜合莓果茶': [['綜合莓果茶茶包', 1]],
+  '蘋果養顏茶': [['蘋果養顏茶茶包', 1]],
+  '玫瑰白桃果乾茶': [['玫瑰白桃果乾茶茶包', 1]],
+  '紅茶餅乾': [['紅茶餅乾單包', 1]],
+  '伯爵沙不列': [['伯爵沙不列單包', 1]],
+  '中秋禮盒': [
+    ['綜合莓果茶茶包', 5], ['蘋果養顏茶茶包', 5], ['紅茶餅乾單包', 5], ['伯爵沙不列單包', 5],
+  ],
+  '綜合茶包組': [
+    ['四季春茶包', 1], ['文山包種茶包', 1], ['焙火烏龍茶包', 1], ['紅烏龍茶包', 1],
+    ['古早味紅茶茶包', 1], ['蜜香紅茶茶包', 1], ['蘋果四季青茶包', 1], ['莓果四季青茶包', 1],
+    ['黑醋栗果茶茶包', 1], ['玫瑰蜜桃茶茶包', 1], ['香甜蘋果茶茶包', 1], ['綜合莓果茶茶包', 1],
+    ['蘋果養顏茶茶包', 1], ['玫瑰白桃果乾茶茶包', 1],
+  ],
+};
+
+/* 反查：每個內容物被用在哪些品項裡（表格顯示用） */
+const COMPONENT_USED_IN = {};
+Object.keys(BOM).forEach(productName => {
+  BOM[productName].forEach(([comp]) => {
+    if(!COMPONENT_USED_IN[comp]) COMPONENT_USED_IN[comp] = [];
+    if(!COMPONENT_USED_IN[comp].includes(productName)) COMPONENT_USED_IN[comp].push(productName);
+  });
+});
+
+const INV_KEY = 'teabag_inventory_v2';
+function loadInvData(){
+  try{ return JSON.parse(localStorage.getItem(INV_KEY) || '{}'); }
+  catch(e){ return {}; }
+}
+function saveInvData(data){ localStorage.setItem(INV_KEY, JSON.stringify(data)); }
+let invData = loadInvData(); // { [內容物名稱]: { stock, bagQty, unitPrice } }
+
+function componentDefaults(name){
+  const meta = COMPONENT_META.find(c => c.name === name) || {};
+  return { stock:0, bagQty: meta.bagQty || 0, unitPrice: meta.unitPrice || 0 };
+}
+function getInvRec(name){
+  if(!invData[name]) invData[name] = componentDefaults(name);
+  return invData[name];
+}
+
+/* 未出貨判定：這幾個狀態算「還沒出貨」 */
+const UNSHIPPED_STATUSES = ['待付款','已付款','備貨中'];
+
+let unshippedCache = {};
+
+/* 把未出貨訂單依商品結構表拆解成內容物需求量 */
+function computeComponentDemand(){
+  const demand = {};
+  orders
+    .filter(o => UNSHIPPED_STATUSES.includes(o.status))
+    .forEach(o => {
+      (o.items || []).forEach(i => {
+        const bom = BOM[i.name];
+        if(!bom) return; // 商品結構表找不到對應品項，略過
+        const qty = Number(i.qty || 0);
+        bom.forEach(([comp, mult]) => {
+          demand[comp] = (demand[comp] || 0) + qty * mult;
+        });
+      });
+    });
+  return demand;
+}
+
+function computeRowValues(name){
+  const rec = getInvRec(name);
+  const demandQty = unshippedCache[name] || 0;
+  const stock = Number(rec.stock || 0);
+  const bagQty = Number(rec.bagQty || 0);
+  const unitPrice = Number(rec.unitPrice || 0);
+  const needQty = Math.max(0, demandQty - stock);
+
+  let bags = 0, cost = 0, bagsDisplay = '0';
+  if(needQty > 0){
+    if(bagQty > 0){
+      bags = Math.ceil(needQty / bagQty);
+      cost = bags * bagQty * unitPrice;
+      bagsDisplay = String(bags);
+    } else {
+      bagsDisplay = '請設定進貨數量';
+    }
+  }
+  return { demandQty, needQty, bags, cost, bagsDisplay };
+}
+
+function rowHtml(meta){
+  const rec = getInvRec(meta.name);
+  const demandQty = unshippedCache[meta.name] || 0;
+  const usedIn = (COMPONENT_USED_IN[meta.name] || []).join('、');
+  return `
+    <tr data-name="${meta.name}">
+      <td>${meta.name}</td>
+      <td style="font-size:12px;color:var(--ink-soft);max-width:180px;">${usedIn}</td>
+      <td>${demandQty}</td>
+      <td><input type="number" min="0" class="inv-input" data-field="stock" value="${rec.stock || 0}"></td>
+      <td class="need-cell" data-cell="need"></td>
+      <td><input type="number" min="0" class="inv-input" data-field="bagQty" value="${rec.bagQty || 0}"></td>
+      <td><input type="number" min="0" step="0.01" class="inv-input" data-field="unitPrice" value="${rec.unitPrice || 0}"></td>
+      <td data-cell="bags"></td>
+      <td data-cell="cost"></td>
+    </tr>
+  `;
+}
+
+function refreshInventoryRow(name){
+  const tr = document.querySelector(`#inventoryBody tr[data-name="${CSS.escape(name)}"]`);
+  if(!tr) return;
+  const { needQty, cost, bagsDisplay } = computeRowValues(name);
+  const needCell = tr.querySelector('[data-cell="need"]');
+  needCell.textContent = needQty;
+  needCell.className = 'need-cell ' + (needQty > 0 ? 'short' : 'ok');
+  tr.querySelector('[data-cell="bags"]').textContent = bagsDisplay;
+  tr.querySelector('[data-cell="cost"]').textContent = fmt(cost);
+}
+
+function refreshInventoryTotals(){
+  let totalCost = 0, shortCount = 0;
+  COMPONENT_META.forEach(meta => {
+    const { needQty, cost } = computeRowValues(meta.name);
+    if(needQty > 0) shortCount++;
+    totalCost += cost;
+    refreshInventoryRow(meta.name);
+  });
+  document.getElementById('invStatTotal').textContent = COMPONENT_META.length;
+  document.getElementById('invStatShort').textContent = shortCount;
+  document.getElementById('invStatCost').textContent = fmt(totalCost);
+  document.getElementById('invTotalCost').textContent = fmt(totalCost);
+}
+
+function renderInventory(){
+  unshippedCache = computeComponentDemand();
+  const tbody = document.getElementById('inventoryBody');
+  tbody.innerHTML = COMPONENT_META.map(meta => rowHtml(meta)).join('');
+  refreshInventoryTotals();
+}
+
+/* 編輯庫存/進貨規格：只更新該列的計算欄位，不整表重繪，避免打字時失焦 */
+document.getElementById('inventoryBody').addEventListener('input', e => {
+  const input = e.target.closest('.inv-input');
+  if(!input) return;
+  const tr = input.closest('tr');
+  const name = tr.dataset.name;
+  const field = input.dataset.field;
+  const rec = getInvRec(name);
+  rec[field] = Number(input.value) || 0;
+  saveInvData(invData);
+  refreshInventoryTotals();
+});
 </script>
 </body>
 </html>
